@@ -12,17 +12,25 @@ REQUIRED_COLUMNS = [
     "lon",
 ]
 
+def flatten_ubicacion(records: list) -> list:
+    """Extrae lat/lon de objeto anidado 'ubicacion' si existe."""
+    for r in records:
+        if isinstance(r.get("ubicacion"), dict):
+            r["lat"] = r["ubicacion"].get("latitud")
+            r["lon"] = r["ubicacion"].get("longitud")
+    return records
+
 def to_dataframe(raw: object) -> pd.DataFrame:
     """Convierte JSON (lista/dict) a DataFrame."""
     if isinstance(raw, list):
-        return pd.DataFrame(raw)
+        return pd.DataFrame(flatten_ubicacion(raw))
     if isinstance(raw, dict):
         # Si viene como { "data": [...] } o similar, intenta extraer
         for k in ("data", "records", "items"):
             if k in raw and isinstance(raw[k], list):
-                return pd.DataFrame(raw[k])
+                return pd.DataFrame(flatten_ubicacion(raw[k]))
         # Si no, lo tratamos como un único registro
-        return pd.DataFrame([raw])
+        return pd.DataFrame(flatten_ubicacion([raw]))
     raise ValueError("Formato JSON no soportado")
 
 def ensure_columns(df: pd.DataFrame) -> pd.DataFrame:
