@@ -6,6 +6,9 @@ if [ -f ".venv/bin/activate" ]; then
   source .venv/bin/activate
 fi
 
+# Necesario para que Python encuentre el modulo 'app'
+export PYTHONPATH="${PYTHONPATH:-}:$(pwd)"
+
 PORT="${PORT:-8501}"
 ADDR="${ADDR:-0.0.0.0}"
 
